@@ -22,54 +22,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-//    [FlikrAPI searchFor:@"cats" complete:^(NSArray *results) {
-//        self.photos = results;
-//        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-//            [self.collectionView reloadData];
-//        }];
-//    }];
-    [self fetchDataFromAPI];
-
-
-}
--(void)fetchDataFromAPI{
-    NSURL *flikrUrl = [NSURL URLWithString:@"https://api.flickr.com/services/rest/?method=flickr.photos.search&format=json&nojsoncallback=1&api_key=e885c2393fbb17e24c24fa4756c93fbc&tags=cat"];
-    NSURLRequest *request = [[NSURLRequest alloc]initWithURL: flikrUrl];
-
-    NSURLSessionTask *task= [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error) {
-            NSLog(@"Error: %@", error.localizedDescription);
-            return;
-        }
-        NSHTTPURLResponse *resp = (NSHTTPURLResponse*)response;
-        if (resp.statusCode > 299) {
-            NSLog(@"Bad status code: %ld", resp.statusCode);
-            abort();
-        }
-
-//        Start json parsing
-        NSError *jsonError = nil;
-        NSDictionary* photos = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        if (jsonError) {
-            NSLog(@"Error:%@",jsonError.localizedDescription);
-            return;
-        }
-        NSMutableArray *allPhotos = [[NSMutableArray alloc]init];
-
-        for (NSDictionary* photoInfo in photos[@"photos"][@"photo"]) {
-            NSString* photoTitle = photoInfo[@"title"];
-            NSLog(@"Title: %@", photoTitle);
-            Photos *photo = [[Photos alloc]initWithInfo:photoInfo];
-            [photo photoImageURL];
-            [allPhotos addObject:photo];
-        }
-        self.photos = [allPhotos mutableCopy];
+    [FlikrAPI searchFor:@"cat" complete:^(NSArray *results) {
+        self.photos = results;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [self.collectionView reloadData];
         }];
-        NSLog(@"%@", self.photos);
     }];
-    [task resume];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
@@ -87,7 +45,5 @@
     return cell;
     
 }
-
-
 
 @end
